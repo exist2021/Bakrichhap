@@ -3,878 +3,472 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bakri Chhap Quiz</title>
+    <title>Bakri Chhap: Integrated Rural Development Quiz</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Custom styles for better look and feel */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
         }
-        .container {
-            max-width: 800px;
-            margin: auto;
-        }
-        .quiz-section {
-            margin-bottom: 2rem;
+        .quiz-container {
+            max-width: 700px;
+            margin: 2rem auto;
             padding: 2rem;
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background-color: #ffffff;
+            border-radius: 1rem; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .question {
-            font-size: 1.25rem;
+        .question-text {
+            font-size: 1.25rem; /* Larger question text */
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1f2937; /* Dark gray */
+        }
+        .option-button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid #d1d5db; /* Gray border */
+            border-radius: 0.5rem; /* Rounded corners */
+            background-color: #f9fafb; /* Light gray background */
+            color: #374151; /* Medium gray text */
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .option-button:hover {
+            background-color: #e5e7eb; /* Slightly darker gray on hover */
+            border-color: #9ca3af;
+        }
+        .option-button.selected {
+             background-color: #dbeafe; /* Light blue when selected */
+             border-color: #60a5fa; /* Blue border when selected */
+             font-weight: 500;
+        }
+        .feedback {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
             font-weight: 500;
-            margin-bottom: 1rem;
-            color: #1f2937;
         }
-        .options {
-            margin-bottom: 1rem;
+        .feedback.correct {
+            background-color: #d1fae5; /* Light green */
+            color: #065f46; /* Dark green */
         }
-        .option {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.5rem;
+        .feedback.incorrect {
+            background-color: #fee2e2; /* Light red */
+            color: #991b1b; /* Dark red */
         }
-        input[type="radio"] {
-            margin-right: 0.5rem;
-            cursor: pointer;
+        .progress-bar-container {
+             width: 100%;
+             background-color: #e5e7eb; /* Light gray background */
+             border-radius: 0.5rem;
+             overflow: hidden;
+             margin-bottom: 1.5rem;
         }
-        label {
-            font-size: 1rem;
-            color: #374151;
-            cursor: pointer;
+        .progress-bar {
+            height: 10px;
+            background-color: #3b82f6; /* Blue progress */
+            width: 0%; /* Start at 0% */
+            transition: width 0.5s ease-in-out;
+            border-radius: 0.5rem;
         }
         .submit-button {
             padding: 0.75rem 1.5rem;
-            background-color: #4caf50;
+            background-color: #2563eb; /* Blue */
             color: white;
             border: none;
-            border-radius: 0.375rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s;
             margin-top: 1rem;
         }
         .submit-button:hover {
-            background-color: #45a049;
+            background-color: #1d4ed8; /* Darker blue */
         }
-        #results {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background-color: #f0fdf4;
-            border-radius: 0.75rem;
-            border: 1px solid #d4edda;
-            color: #155724;
+        .submit-button:disabled {
+            background-color: #9ca3af; /* Gray when disabled */
+            cursor: not-allowed;
         }
-        #results h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
+        .results-container {
+            text-align: center;
+        }
+        .results-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1f2937;
             margin-bottom: 1rem;
-            color: #155724;
         }
-        #results p {
-            font-size: 1.1rem;
-            margin-bottom: 0.75rem;
+        .results-score {
+            font-size: 1.25rem;
+            color: #374151;
+            margin-bottom: 1.5rem;
         }
-        .correct-answer {
-            color: #16a34a;
-            font-weight: 500;
+        .restart-button {
+             padding: 0.75rem 1.5rem;
+             background-color: #10b981; /* Green */
+             color: white;
+             border: none;
+             border-radius: 0.5rem;
+             font-weight: 600;
+             cursor: pointer;
+             transition: background-color 0.3s;
+             margin-top: 1rem;
         }
-        .wrong-answer {
-            color: #dc2626;
-            font-weight: 500;
+        .restart-button:hover {
+            background-color: #059669; /* Darker green */
         }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-100 py-8">
-    <div class="container">
-        <h1 class="text-3xl font-semibold text-center text-gray-800 mb-6">Bakri Chhap Quiz</h1>
-        <form id="quiz-form">
-            <div class="quiz-section">
-                <p class="question">1. Bakri Chhap is best described as an organization focused on:</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q1a" name="q1" value="a">
-                        <label for="q1a">a) Maximizing profits through rural ventures.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q1b" name="q1" value="b">
-                        <label for="q1b">b) Promoting urban development through sustainable practices.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q1c" name="q1" value="c">
-                        <label for="q1c">c) A "pro planet, pro people and for-profit" model for integrated rural development.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q1d" name="q1" value="d">
-                        <label for="q1d">d) Solely focusing on environmental conservation in villages.</label>
-                    </div>
-                </div>
+<body class="bg-gray-100">
+
+    <div class="quiz-container">
+        <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Bakri Chhap: Integrated Rural Development Quiz</h1>
+
+        <div id="quiz-content">
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar"></div>
             </div>
-
-            <div class="quiz-section">
-                <p class="question">2. Who founded Bakri Chhap?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q2a" name="q2" value="a">
-                        <label for="q2a">a) Mahatma Gandhi</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q2b" name="q2" value="b">
-                        <label for="q2b">b) Narendra Modi</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q2c" name="q2" value="c">
-                        <label for="q2c">c) Roopesh Rai</label>
-                    </div>
-                     <div class="option">
-                        <input type="radio" id="q2d" name="q2" value="d">
-                        <label for="q2d">d) Vandana Shiva</label>
-                    </div>
+            <div id="question-number" class="text-sm text-gray-500 mb-2"></div>
+            <div id="question-text" class="question-text">Loading question...</div>
+            <div id="options-container">
                 </div>
-            </div>
+            <div id="feedback" class="feedback hidden"></div>
+            <button id="submit-button" class="submit-button" disabled>Submit Answer</button>
+        </div>
 
-            <div class="quiz-section">
-                <p class="question">3. What is the primary mission of Bakri Chhap, according to Roopesh Rai?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q3a" name="q3" value="a">
-                        <label for="q3a">a) Increasing agricultural exports from rural India.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q3b" name="q3" value="b">
-                        <label for="q3b">b) "Change Before Climate Change" by focusing on environmental stewardship and supporting marginalized communities.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q3c" name="q3" value="c">
-                        <label for="q3c">c) Promoting modern agricultural techniques in villages.</label>
-                    </div>
-                    <div class="option">
-                         <input type="radio" id="q3d" name="q3" value="d">
-                        <label for="q3d">d) Establishing luxury resorts in rural areas.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">4. Which of the following is NOT a guiding principle of Bakri Chhap?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q4a" name="q4" value="a">
-                        <label for="q4a">a) Sustainability as its religion.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q4b" name="q4" value="b">
-                        <label for="q4b">b) Minimalism as its governing philosophy.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q4c" name="q4" value="c">
-                        <label for="q4c">c) Maximize production at all costs.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q4d" name="q4" value="d">
-                        <label for="q4d">d) Reduce, reuse, and recycle as its holy trinity.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">5. A key goal of Bakri Chhap is:</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q5a" name="q5" value="a">
-                        <label for="q5a">a) To encourage urbanization of rural populations.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q5b" name="q5" value="b">
-                        <label for="q5b">b) To revive abandoned villages and achieve reverse migration of marginalized farmers.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q5c" name="q5" value="c">
-                        <label for="q5c">c) To establish large-scale industrial units in rural areas.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q5d" name="q5" value="d">
-                        <label for="q5d">d) To promote the cultivation of only cash crops.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">6. What does the "Pro Planet, Pro People, For Profit" model signify for Bakri Chhap?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q6a" name="q6" value="a">
-                        <label for="q6a">a) Profit is the sole driving force, with consideration for people and the planet when feasible.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q6b" name="q6" value="b">
-                        <label for="q6b">b) Environmental and social well-being are equally important and integral to the business model, leading to profit.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q6c" name="q6" value="c">
-                        <label for="q6c">c) Prioritizing environmental protection over the well-being of people and profit.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q6d" name="q6" value="d">
-                        <label for="q6d">d) Focusing on social welfare initiatives that may or may not generate profit.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">7. The Goat Village initiative primarily focuses on:</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q7a" name="q7" value="a">
-                        <label for="q7a">a) Large-scale commercial goat farming.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q7b" name="q7" value="b">
-                        <label for="q7b">b) Creating community-friendly farm retreats and homestays to revive abandoned villages.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q7c" name="q7" value="c">
-                        <label for="q7c">c) Establishing modern hotels in rural areas.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q7d" name="q7" value="d">
-                        <label for="q7d">d) Organizing goat beauty pageants for tourism.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">8. How many thematic villages are mentioned as being run by Bakri Chhap?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q8a" name="q8" value="a">
-                        <label for="q8a">a) Two</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q8b" name="q8" value="b">
-                        <label for="q8b">b) Three</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q8c" name="q8" value="c">
-                        <label for="q8c">c) Five</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q8d" name="q8" value="d">
-                        <label for="q8d">d) Eight</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">9. What do Bakri Chhap's thematic villages aim to showcase?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q9a" name="q9" value="a">
-                        <label for="q9a">a) Only agricultural practices.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q9b" name="q9" value="b">
-                        <label for="q9b">b) Specific aspects of rural life, women’s empowerment, local art, or traditional architecture.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q9c" name="q9" value="c">
-                        <label for="q9c">c) Primarily adventure sports and activities.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q9d" name="q9" value="d">
-                        <label for="q9d">d) The economic disparity between urban and rural areas.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">10. Bakri Chhap offers homestays that are best described as:</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q10a" name="q10" value="a">
-                        <label for="q10a">a) Luxurious and expensive.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q10b" name="q10" value="b">
-                        <label for="q10b">b) "No-frills-but-high-on-experiences," providing authentic local experiences.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q10c" name="q10" value="c">
-                        <label for="q10c">c) Standard hotel accommodations in rural settings.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q10d" name="q10" value="d">
-                        <label for="q10d">d) Focused on providing maximum amenities to urban travelers.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">11. What was a key outcome of Bakri Chhap's "Pay As You Like" model for homestays?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q11a" name="q11" value="a">
-                        <label for="q11a">a) It led to significant financial losses.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q11b" name="q11" value="b">
-                        <label for="q11b">b) It primarily attracted budget travelers looking for free stays.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q11c" name="q11" value="c">
-                        <label for="q11c">c) It caught the imagination of young urban travelers, managing expectations and attracting conscious travelers.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q11d" name="q11" value="d">
-                        <label for="q11d">d) It resulted in a decline in the quality of homestay services.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">12. Under the ‘Bakri Chaap’ label, the focus is on selling:</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q12a" name="q12" value="a">
-                        <label for="q12a">a) Industrially produced food items.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q12b" name="q12" value="b">
-                        <label for="q12b">b) Imported organic produce.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q12c" name="q12" value="c">
-                        <label for="q12c">c) Indigenous farm products.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q12d" name="q12" value="d">
-                        <label for="q12d">d) Genetically modified crops.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">13. How does Bakri Chhap primarily work with farmers?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q13a" name="q13" value="a">
-                        <label for="q13a">a) Through a long chain of middlemen.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q13b" name="q13" value="b">
-                        <label for="q13b">b) By offering the lowest possible prices to maximize profits.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q13c" name="q13" value="c">
-                        <label for="q13c">c) Directly with nearly 150 farmers and indirectly with over 500 across 45+ villages, striving for fair trade prices.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q13d" name="q13" value="d">
-                        <label for="q13d">d) By employing farmers as laborers on large estates.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">14. How does Bakri Chhap address plastic pollution in its packaging?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q14a" name="q14" value="a">
-                        <label for="q14a">a) By using single-use plastic bags.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q14b" name="q14" value="b">
-                        <label for="q14b">b) By burning all plastic waste.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q14c" name="q14" value="c">
-                         <label for="q14c">c) By burying plastic waste in landfills.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q14d" name="q14" value="d">
-                        <label for="q14d">d) By reusing existing used plastic bottles and containers to pack farm produce.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">15. What does "reverse traceability" of products mean in the context of Bakri Chhap?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q15a" name="q15" value="a">
-                        <label for="q15a">a) Products are sold without any labeling.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q15b" name="q15" value="b">
-                        <label for="q15b">b) Consumers can trace the product back to its origin and the farmers involved, building trust and transparency.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q15c" name="q15" value="c">
-                        <label for="q15c">c) Products are sourced from multiple unknown locations.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q15d" name="q15" value="d">
-                        <label for="q15d">d) Products are only sold through anonymous online channels.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">16. Which of the following is a tagline used by Bakri Chhap?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q16a" name="q16" value="a">
-                        <label for="q16a">a) "Urban Living, Rural Sourcing"</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q16b" name="q16" value="b">
-                        <label for="q16b">b) "Chote Kisano ka Bada Brand, Bakri Chhap"</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q16c" name="q16" value="c">
-                        <label for="q16c">c) "Luxury from the Land"</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q16d" name="q16" value="d">
-                        <label for="q16d">d) "Modern Agriculture for Tomorrow"</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">17. What was the primary purpose of the Bakri Swayamwar (Goat Marriages) initiative?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q17a" name="q17" value="a">
-                        <label for="q17a">a) To promote goat farming as a business.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q17b" name="q17" value="b">
-                        <label for="q17b">b) To organize a cultural festival for goat herders.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q17c" name="q17" value="c">
-                        <label for="q17c">c) To facilitate goat breeding amongst different villages and improve the cattle gene pool.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q17d" name="q17" value="d">
-                        <label for="q17d">d) To raise funds for goat shelters.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">18. What is the Ghasyari Festival likely aimed at?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q18a" name="q18" value="a">
-                        <label for="q18a">a) Celebrating the end of the harvest season.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q18b" name="q18" value="b">
-                        <label for="q18b">b) Promoting sustainable forestry practices.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q18c" name="q18" value="c">
-                        <label for="q18c">c) Involving the community, potentially focusing on women who cut grass for cattle.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q18d" name="q18" value="d">
-                        <label for="q18d">d) Showcasing traditional grass weaving techniques.</label>
-                    </div>
-                </div>
-            </div>
-
-            <divclass="quiz-section">
-                <p class="question">19. What did the "Be My Volunteer Village Manager" initiative invite people to do?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q19a" name="q19" value="a">
-                        <label for="q19a">a) Invest in rural real estate.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q19b" name="q19" value="b">
-                        <label for="q19b">b) Compete for a village management position.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q19c" name="q19" value="c">
-                        <label for="q19c">c) Volunteer in the villages, contributing their skills and experiencing rural life.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q19d" name="q19" value="d">
-                        <label for="q19d">d) Manage the online marketing for Bakri Chhap.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">20. What was the mode of travel used by Roopesh Rai to spread awareness about climate change?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q20a" name="q20" value="a">
-                        <label for="q20a">a) A luxury bus tour.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q20b" name="q20" value="b">
-                        <label for="q20b">b) A helicopter ride.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q20c" name="q20" value="c">
-                        <label for="q20c">c) A no budget, zero carbon footprint solo cycling expedition.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q20d" name="q20" value="d">
-                        <label for="q20d">d) A series of online webinars.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">21. What does 'Prakriti Prahri' or 'Green Champs' refer to?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q21a" name="q21" value="a">
-                        <label for="q21a">a) Government officials promoting environmental policies.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q21b" name="q21" value="b">
-                        <label for="q21b">b) A new variety of drought-resistant crop.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q21c" name="q21" value="c">
-                        <label for="q21c">c) Individuals appointed in villages to continue the climate change mission.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q21d" name="q21" value="d">
-                        <label for="q21d">d) A type of eco-friendly construction material.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">22. What is a key focus of Bakri Chhap's initiatives?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q22a" name="q22" value="a">
-                        <label for="q22a">a) Maximizing profits without community involvement.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q22b" name="q22" value="b">
-                        <label for="q22b">b) Involving the community and ensuring fair benefits distribution.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q22c" name="q22" value="c">
-                        <label for="q22c">c) Replacing traditional practices with modern technology, regardless of community impact.</label>
-                    </div>
-                     <div class="option">
-                        <input type="radio" id="q22d" name="q22" value="d">
-                        <label for="q22d">d) Promoting individual competition rather than community collaboration.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">23. What does Bakri Chhap do in regards to women?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q23a" name="q23" value="a">
-                        <label for="q23a">a) They don't involve women.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q23b" name="q23" value="b">
-                        <label for="q23b">b) They have a 'Women's team' with popular women guides.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q23c" name="q23" value="c">
-                        <label for="q23c">c) They only employ women in domestic roles.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q23d" name="q23" value="d">
-                        <label for="q23d">d) They discourage women from participating in tourism.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">24. By how much has the area of operations increased in footfall?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q24a" name="q24" value="a">
-                        <label for="q24a">a) 10-fold</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q24b" name="q24" value="b">
-                        <label for="q24b">b) 30-fold</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q24c" name="q24" value="c">
-                        <label for="q24c">c) 50-fold</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q24d" name="q24" value="d">
-                        <label for="q24d">d) 70-fold</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">25. What economic benefits have been observed in the areas where Bakri Chhap operates?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q25a" name="q25" value="a">
-                        <label for="q25a">a) 6 times growth in land prices and 80% additional population adopted traditional farming.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q25b" name="q25" value="b">
-                        <label for="q25b">b) 2 times growth in land prices and 20% additional population adopted traditional farming.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q25c" name="q25" value="c">
-                        <label for="q25c">c) No change in land prices.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q25d" name="q25" value="d">
-                        <label for="q25d">d) Decrease in population adopting traditional farming</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">26. What percentage of heritage rural homes have been conserved?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q26a" name="q26" value="a">
-                        <label for="q26a">a) 20%</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q26b" name="q26" value="b">
-                        <label for="q26b">b) 50%</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q26c" name="q26" value="c">
-                        <label for="q26c">c) 70%</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q26d" name="q26" value="d">
-                        <label for="q26d">d) 90%</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">27. What type of architecture has Bakri Chhap helped revive?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q27a" name="q27" value="a">
-                        <label for="q27a">a) Modern, glass-fronted buildings</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q27b" name="q27" value="b">
-                        <label for="q27b">b) Traditional, climate-proof Koti Banal architecture</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q27c" name="q27" value="c">
-                        <label for="q27c">c) Colonial-era bungalows</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q27d" name="q27" value="d">
-                        <label for="q27d">d) Underground housing</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">28. Which of the following is an award won by Bakri Chhap?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q28a" name="q28" value="a">
-                        <label for="q28a">a) The Booker Prize</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q28b" name="q28" value="b">
-                        <label for="q28b">b) The Nobel Peace Prize</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q28c" name="q28" value="c">
-                        <label for="q28c">c) TripAdvisor Travelers Choice Award</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q28d" name="q28" value="d">
-                        <label for="q28d">d) The Academy Award</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">29. What are Bakri Chhap's plans for expansion?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q29a" name="q29" value="a">
-                        <label for="q29a">a) To focus solely on online sales of farm produce.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q29b" name="q29" value="b">
-                        <label for="q29b">b) To build 20 new hideouts and 2 new eco-villages.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q29c" name="q29" value="c">
-                        <label for="q29c">c) To establish a chain of luxury hotels in major cities.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q29d" name="q29" value="d">
-                        <label for="q29d">d) To discontinue its tourism initiatives.</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-section">
-                <p class="question">30. How does Bakri Chhap plan to expand its operations?</p>
-                <div class="options">
-                    <div class="option">
-                        <input type="radio" id="q30a" name="q30" value="a">
-                        <label for="q30a">a) Through direct government funding.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q30b" name="q30" value="b">
-                        <label for="q30b">b) Through a unique franchise model collaborating with self-help groups and cooperatives.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q30c" name="q30" value="c">
-                        <label for="q30c">c) By merging with a large multinational corporation.</label>
-                    </div>
-                    <div class="option">
-                        <input type="radio" id="q30d" name="q30" value="d">
-                        <label for="q30d">d) By relying solely on individual investors.</label>
-                    </div>
-                </div>
-            </div>
-
-            <button type="submit" class="submit-button">Submit Quiz</button>
-        </form>
-
-        <div id="results" class="hidden mt-8 p-6 bg-green-100 border border-green-400 rounded">
-            <h2 class="text-xl font-semibold text-green-700 mb-4">Results</h2>
-            <p>Your Score: <span id="final-score">0</span></p>
-            <p>Correct Answers: <span id="correct-answers">0</span></p>
-            <p>Incorrect Answers: <span id="incorrect-answers">0</span></p>
-            <ul id="answer-explanations" class="mt-4 space-y-2">
-            </ul>
+        <div id="results-container" class="results-container hidden">
+            <h2 class="results-title">Quiz Completed!</h2>
+            <p id="results-score" class="results-score">Your score: 0 / 0</p>
+            <p id="results-message" class="text-gray-600 mb-4"></p>
+            <button id="restart-button" class="restart-button">Restart Quiz</button>
         </div>
     </div>
 
     <script>
-        const quizForm = document.getElementById('quiz-form');
-        const resultsDiv = document.getElementById('results');
-        const finalScoreDisplay = document.getElementById('final-score');
-        const correctAnswersDisplay = document.getElementById('correct-answers');
-        const incorrectAnswersDisplay = document.getElementById('incorrect-answers');
-        const answerExplanationsList = document.getElementById('answer-explanations');
+        // --- Quiz Data ---
+        const quizData = [
+            {
+                question: "What is the core philosophy of Bakri Chhap?",
+                options: [
+                    "Profit Maximization Only",
+                    "Pro Planet, Pro People, For Profit",
+                    "Technology First Development",
+                    "Urban Focused Growth"
+                ],
+                correctAnswer: "Pro Planet, Pro People, For Profit"
+            },
+            {
+                question: "Who is the founder of Bakri Chhap?",
+                options: [
+                    "Jayant Mahajan",
+                    "A team of social workers",
+                    "Roopesh Rai",
+                    "An anonymous collective"
+                ],
+                correctAnswer: "Roopesh Rai"
+            },
+            {
+                question: "What is the primary mission associated with Roopesh Rai and Bakri Chhap?",
+                options: [
+                    "Building Luxury Resorts",
+                    "Promoting Industrial Agriculture",
+                    "Change Before Climate Change",
+                    "Exporting Local Crafts"
+                ],
+                correctAnswer: "Change Before Climate Change"
+            },
+             {
+                question: "Which of these is NOT part of Bakri Chhap's 'holy trinity' guiding principles?",
+                options: [
+                    "Reduce",
+                    "Reuse",
+                    "Recycle",
+                    "Reinvest"
+                ],
+                correctAnswer: "Reinvest"
+            },
+            {
+                question: "A key goal of Bakri Chhap related to migration is:",
+                options: [
+                    "Encouraging urban migration",
+                    "Achieving reverse migration to villages",
+                    "Facilitating international migration",
+                    "Studying migration patterns"
+                ],
+                correctAnswer: "Achieving reverse migration to villages"
+            },
+            {
+                question: "Which initiative falls under Bakri Chhap's Agro / Rural Tourism vertical?",
+                options: [
+                    "Bakri Swayamwar",
+                    "Selling farm produce online",
+                    "The Goat Village homestays",
+                    "Zero carbon footprint cycling"
+                ],
+                correctAnswer: "The Goat Village homestays"
+            },
+             {
+                question: "What is the unique payment model used by Bakri Chhap homestays that attracted young travelers?",
+                options: [
+                    "Fixed High Prices",
+                    "Barter System Only",
+                    "Pay As You Like",
+                    "Subscription Model"
+                ],
+                correctAnswer: "Pay As You Like"
+            },
+            {
+                question: "How does Bakri Chhap ensure fair prices for its natural farm produce?",
+                options: [
+                    "Selling only through government channels",
+                    "Eliminating middlemen",
+                    "Setting prices below market rate",
+                    "Using dynamic pricing based on demand"
+                ],
+                correctAnswer: "Eliminating middlemen"
+            },
+             {
+                question: "What innovative approach does Bakri Chhap use for packaging its farm produce?",
+                options: [
+                    "Imported biodegradable containers",
+                    "Reusing existing used plastic bottles and containers",
+                    "Minimalist paper packaging",
+                    "Glass jars only"
+                ],
+                correctAnswer: "Reusing existing used plastic bottles and containers"
+            },
+            {
+                question: "What was the primary purpose of the 'Bakri Swayamwar' (Goat Marriages) initiative?",
+                options: [
+                    "A purely symbolic cultural event",
+                    "To sell goats to tourists",
+                    "Goat breeding and gene pool improvisation",
+                    "A fundraising event"
+                ],
+                correctAnswer: "Goat breeding and gene pool improvisation"
+            },
+            {
+                question: "What activity did Roopesh Rai undertake to spread awareness about climate change?",
+                options: [
+                    "Organizing large conferences",
+                    "A zero carbon footprint solo cycling expedition",
+                    "Writing a book",
+                    "Starting a YouTube channel"
+                ],
+                correctAnswer: "A zero carbon footprint solo cycling expedition"
+            },
+             {
+                question: "What are 'Prakriti Prahri' or 'Green Champs' appointed during the cycling expedition?",
+                options: [
+                    "Tour guides for The Goat Village",
+                    "Farmers selling Bakri Chhap produce",
+                    "Village representatives to continue the climate mission",
+                    "Hospitality trainees"
+                ],
+                correctAnswer: "Village representatives to continue the climate mission"
+            },
+             {
+                question: "Which traditional, climate-proof architecture has Bakri Chhap helped revive?",
+                options: [
+                    "Igloo construction",
+                    "Adobe brick making",
+                    "Koti Banal architecture",
+                    "Log cabin building"
+                ],
+                correctAnswer: "Koti Banal architecture"
+            },
+            {
+                question: "Which of the following is NOT mentioned as a future plan for Bakri Chhap?",
+                options: [
+                    "Building 20 new hideouts",
+                    "Expanding through a franchise model",
+                    "Focusing solely on the Himalayan region",
+                    "Becoming an integrated platform for SMMF"
+                ],
+                correctAnswer: "Focusing solely on the Himalayan region" // They aim to reach most villages in India.
+            },
+            {
+                question: "Approximately how many farmers does Bakri Chhap work with directly?",
+                options: [
+                    "Around 15",
+                    "Around 50",
+                    "Around 150",
+                    "Over 1000"
+                ],
+                correctAnswer: "Around 150"
+            }
+        ];
 
-        const correctAnswers = {
-            q1: 'c',
-            q2: 'c',
-            q3: 'b',
-            q4: 'c',
-            q5: 'b',
-            q6: 'b',
-            q7: 'b',
-            q8: 'c',
-            q9: 'b',
-            q10: 'b',
-            q11: 'c',
-            q12: 'c',
-            q13: 'c',
-            q14: 'd',
-            q15: 'b',
-            q16: 'b',
-            q17: 'c',
-            q18: 'c',
-            q19: 'c',
-            q20: 'c',
-            q21: 'c',
-            q22: 'b',
-            q23: 'b',
-            q24: 'd',
-            q25: 'a',
-            q26: 'c',
-            q27: 'b',
-            q28: 'c',
-            q29: 'b',
-            q30: 'b',
-        };
+        // --- DOM Elements ---
+        const quizContentEl = document.getElementById('quiz-content');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const feedbackEl = document.getElementById('feedback');
+        const submitButtonEl = document.getElementById('submit-button');
+        const resultsContainerEl = document.getElementById('results-container');
+        const resultsScoreEl = document.getElementById('results-score');
+        const resultsMessageEl = document.getElementById('results-message');
+        const restartButtonEl = document.getElementById('restart-button');
+        const progressBarEl = document.getElementById('progress-bar');
+        const questionNumberEl = document.getElementById('question-number');
 
-        const questionTexts = {
-            q1: "Bakri Chhap is best described as an organization focused on:",
-            q2: "Who founded Bakri Chhap?",
-            q3: "What is the primary mission of Bakri Chhap, according to Roopesh Rai?",
-            q4: "Which of the following is NOT a guiding principle of Bakri Chhap?",
-            q5: "A key goal of Bakri Chhap is:",
-            q6: "What does the \"Pro Planet, Pro People, For Profit\" model signify for Bakri Chhap?",
-            q7: "The Goat Village initiative primarily focuses on:",
-            q8: "How many thematic villages are mentioned as being run by Bakri Chhap?",
-            q9: "What do Bakri Chhap's thematic villages aim to showcase?",
-            q10: "Bakri Chhap offers homestays that are best described as:",
-            q11: "What was a key outcome of Bakri Chhap's \"Pay As You Like\" model for homestays?",
-            q12: "Under the ‘Bakri Chaap’ label, the focus is on selling:",
-            q13: "How does Bakri Chhap primarily work with farmers?",
-            q14: "How does Bakri Chhap address plastic pollution in its packaging?",
-            q15: "What does \"reverse traceability\" of products mean in the context of Bakri Chhap?",
-            q16: "Which of the following is a tagline used by Bakri Chhap?",
-            q17: "What was the primary purpose of the Bakri Swayamwar (Goat Marriages) initiative?",
-            q18: "What is the Ghasyari Festival likely aimed at?",
-            q19: "What did the \"Be My Volunteer Village Manager\" initiative invite people to do?",
-            q20: "What was the mode of travel used by Roopesh Rai to spread awareness about climate change?",
-            q21: "What does 'Prakriti Prahri' or 'Green Champs' refer to?",
-            q22: "What is a key focus of Bakri Chhap's initiatives?",
-            q23: "What does Bakri Chhap do in regards to women?",
-            q24: "By how much has the area of operations increased in footfall?",
-            q25: "What economic benefits have been observed in the areas where Bakri Chhap operates?",
-            q26: "What percentage of heritage rural homes have been conserved?",
-            q27: "What type of architecture has Bakri Chhap helped revive?",
-            q28: "Which of the following is an award won by Bakri Chhap?",
-            q29: "What are Bakri Chhap's plans for expansion?",
-            q30: "How does Bakri Chhap plan to expand its operations?",
-        };
 
-        quizForm.addEventListener('submit', (event) => {
-            event.preventDefault();
+        // --- Quiz State ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedAnswer = null;
 
-            let score = 0;
-            let correctAnswersCount = 0;
-            let incorrectAnswersCount = 0;
-            const answerExplanations = [];
+        // --- Functions ---
 
-            for (let i = 1; i <= 30; i++) {
-                const questionName = `q${i}`;
-                const selectedAnswer = document.querySelector(`input[name="${questionName"]:checked`);
+        /**
+         * Loads and displays the current question and options.
+         */
+        function loadQuestion() {
+            // Reset state for the new question
+            selectedAnswer = null;
+            feedbackEl.classList.add('hidden');
+            feedbackEl.textContent = '';
+            submitButtonEl.disabled = true;
+            submitButtonEl.textContent = 'Submit Answer'; // Reset button text
+            optionsContainerEl.innerHTML = ''; // Clear previous options
 
-                if (!selectedAnswer) {
-                    answerExplanations.push(`<li><p class="wrong-answer">Question ${i}: Not answered</p></li>`);
-                    incorrectAnswersCount++;
-                    continue; // Skip scoring for unanswered questions
-                }
+            if (currentQuestionIndex < quizData.length) {
+                const currentQuestion = quizData[currentQuestionIndex];
 
-                if (selectedAnswer.value === correctAnswers[questionName]) {
-                    score += 5;
-                    correctAnswersCount++;
-                    answerExplanations.push(`<li><p class="correct-answer">Question ${i}: Correct</p></li>`);
-                } else {
-                    score -= 2;
-                    incorrectAnswersCount++;
-                    answerExplanations.push(`<li><p class="wrong-answer">Question ${i}: Incorrect.  The correct answer was ${correctAnswers[questionName].toUpperCase()}</p></li>`);
-                }
+                // Update question text and number
+                questionTextEl.textContent = currentQuestion.question;
+                questionNumberEl.textContent = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+
+                // Update progress bar
+                const progressPercentage = ((currentQuestionIndex + 1) / quizData.length) * 100;
+                progressBarEl.style.width = `${progressPercentage}%`;
+
+
+                // Create and append option buttons
+                currentQuestion.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('option-button');
+                    button.addEventListener('click', () => selectAnswer(button, option));
+                    optionsContainerEl.appendChild(button);
+                });
+            } else {
+                // Quiz finished, show results
+                showResults();
+            }
+        }
+
+        /**
+         * Handles the selection of an answer option.
+         * @param {HTMLButtonElement} selectedButton - The button element that was clicked.
+         * @param {string} answer - The text content of the selected answer.
+         */
+        function selectAnswer(selectedButton, answer) {
+            // Remove 'selected' class from previously selected button (if any)
+            const currentlySelected = optionsContainerEl.querySelector('.selected');
+            if (currentlySelected) {
+                currentlySelected.classList.remove('selected');
             }
 
-            finalScoreDisplay.textContent = score;
-            correctAnswersDisplay.textContent = correctAnswersCount;
-            incorrectAnswersDisplay.textContent = incorrectAnswersCount;
-            answerExplanationsList.innerHTML = answerExplanations.join('');
-            resultsDiv.classList.remove('hidden');
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        });
+            // Add 'selected' class to the clicked button
+            selectedButton.classList.add('selected');
+            selectedAnswer = answer;
+            submitButtonEl.disabled = false; // Enable submit button
+        }
+
+        /**
+         * Checks the selected answer, provides feedback, and updates the score.
+         */
+        function checkAnswer() {
+            if (selectedAnswer === null) return; // Should not happen if button is enabled, but good practice
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+
+            // Disable option buttons after submitting
+            const optionButtons = optionsContainerEl.querySelectorAll('.option-button');
+            optionButtons.forEach(button => button.disabled = true);
+
+            // Provide visual feedback (optional - uncomment if immediate feedback is desired)
+            /*
+            feedbackEl.classList.remove('hidden');
+            if (isCorrect) {
+                feedbackEl.textContent = "Correct!";
+                feedbackEl.classList.remove('incorrect');
+                feedbackEl.classList.add('correct');
+                score++;
+            } else {
+                feedbackEl.textContent = `Incorrect. The correct answer is: ${currentQuestion.correctAnswer}`;
+                feedbackEl.classList.remove('correct');
+                feedbackEl.classList.add('incorrect');
+            }
+            */
+
+             // Update score if correct (feedback shown at the end)
+             if (isCorrect) {
+                score++;
+             }
+
+
+            // Change button text and functionality to "Next Question" or "Show Results"
+            submitButtonEl.textContent = (currentQuestionIndex < quizData.length - 1) ? 'Next Question' : 'Show Results';
+            submitButtonEl.onclick = () => { // Reassign onclick for the next step
+                 currentQuestionIndex++;
+                 optionButtons.forEach(button => button.disabled = false); // Re-enable buttons for next question
+                 submitButtonEl.onclick = checkAnswer; // Reset onclick back to checkAnswer
+                 loadQuestion();
+             };
+        }
+
+        /**
+         * Displays the final quiz results.
+         */
+        function showResults() {
+            quizContentEl.classList.add('hidden'); // Hide quiz questions area
+            resultsContainerEl.classList.remove('hidden'); // Show results area
+
+            resultsScoreEl.textContent = `Your score: ${score} / ${quizData.length}`;
+
+            // Provide a simple message based on score
+            let message = '';
+            const percentage = (score / quizData.length) * 100;
+            if (percentage === 100) {
+                message = "Excellent! You have a perfect understanding of Bakri Chhap!";
+            } else if (percentage >= 75) {
+                message = "Great job! You know a lot about Bakri Chhap's mission and work.";
+            } else if (percentage >= 50) {
+                message = "Good effort! You've grasped the basics of Bakri Chhap.";
+            } else {
+                message = "Keep learning! There's more to discover about Bakri Chhap's impact.";
+            }
+            resultsMessageEl.textContent = message;
+        }
+
+        /**
+         * Resets the quiz state and starts over.
+         */
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+            resultsContainerEl.classList.add('hidden'); // Hide results
+            quizContentEl.classList.remove('hidden'); // Show quiz content
+            loadQuestion(); // Load the first question
+        }
+
+        // --- Event Listeners ---
+        submitButtonEl.addEventListener('click', checkAnswer);
+        restartButtonEl.addEventListener('click', restartQuiz);
+
+        // --- Initial Load ---
+        loadQuestion();
+
     </script>
+
 </body>
 </html>

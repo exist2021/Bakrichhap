@@ -5,18 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bakri Chhap: Integrated Rural Development Quiz</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* Custom styles for better look and feel */
         body {
             font-family: 'Inter', sans-serif; /* Using Inter font */
         }
-        .quiz-container {
+        .quiz-container, .user-info-container {
             max-width: 700px;
             margin: 2rem auto;
             padding: 2rem;
             background-color: #ffffff;
             border-radius: 1rem; /* Rounded corners */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .hidden {
+            display: none;
+        }
+        /* Form Styles */
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151; /* Medium gray */
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db; /* Gray border */
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            box-sizing: border-box; /* Include padding in width */
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6; /* Blue border on focus */
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+        .start-button {
+            padding: 0.75rem 1.5rem;
+            background-color: #10b981; /* Green */
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%; /* Full width */
+        }
+        .start-button:hover {
+            background-color: #059669; /* Darker green */
+        }
+        /* Quiz Styles */
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .timer {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ef4444; /* Red color for timer */
+            background-color: #fee2e2; /* Light red background */
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px; /* Pill shape */
         }
         .question-text {
             font-size: 1.25rem; /* Larger question text */
@@ -25,7 +78,8 @@
             color: #1f2937; /* Dark gray */
         }
         .option-button {
-            display: block;
+            display: flex; /* Use flex for icon alignment */
+            align-items: center;
             width: 100%;
             text-align: left;
             padding: 0.75rem 1rem;
@@ -35,27 +89,49 @@
             background-color: #f9fafb; /* Light gray background */
             color: #374151; /* Medium gray text */
             transition: background-color 0.3s, border-color 0.3s;
+            cursor: pointer;
         }
-        .option-button:hover {
+        .option-button:hover:not(:disabled) {
             background-color: #e5e7eb; /* Slightly darker gray on hover */
             border-color: #9ca3af;
         }
-        .option-button.selected {
+        .option-button.selected:not(.correct):not(.incorrect) {
              background-color: #dbeafe; /* Light blue when selected */
              border-color: #60a5fa; /* Blue border when selected */
              font-weight: 500;
+        }
+        .option-button.correct {
+            background-color: #d1fae5 !important; /* Light green */
+            border-color: #10b981 !important; /* Green border */
+            color: #065f46 !important; /* Dark green text */
+            font-weight: 600;
+        }
+        .option-button.incorrect {
+            background-color: #fee2e2 !important; /* Light red */
+            border-color: #f87171 !important; /* Red border */
+            color: #991b1b !important; /* Dark red text */
+            font-weight: 600;
+        }
+        .option-button i { /* Style for icons */
+            margin-left: auto; /* Push icon to the right */
+            font-size: 1.1rem;
+        }
+        .option-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
         }
         .feedback {
             margin-top: 1rem;
             padding: 0.75rem;
             border-radius: 0.5rem;
             font-weight: 500;
+            text-align: center;
         }
-        .feedback.correct {
+        .feedback.correct-message {
             background-color: #d1fae5; /* Light green */
             color: #065f46; /* Dark green */
         }
-        .feedback.incorrect {
+        .feedback.incorrect-message {
             background-color: #fee2e2; /* Light red */
             color: #991b1b; /* Dark red */
         }
@@ -65,15 +141,16 @@
              border-radius: 0.5rem;
              overflow: hidden;
              margin-bottom: 1.5rem;
+             height: 10px; /* Explicit height */
         }
         .progress-bar {
-            height: 10px;
+            height: 100%; /* Fill container height */
             background-color: #3b82f6; /* Blue progress */
             width: 0%; /* Start at 0% */
             transition: width 0.5s ease-in-out;
             border-radius: 0.5rem;
         }
-        .submit-button {
+        .action-button { /* Combined style for Submit/Next */
             padding: 0.75rem 1.5rem;
             background-color: #2563eb; /* Blue */
             color: white;
@@ -83,14 +160,16 @@
             cursor: pointer;
             transition: background-color 0.3s;
             margin-top: 1rem;
+            width: 100%; /* Full width */
         }
-        .submit-button:hover {
+        .action-button:hover:not(:disabled) {
             background-color: #1d4ed8; /* Darker blue */
         }
-        .submit-button:disabled {
+        .action-button:disabled {
             background-color: #9ca3af; /* Gray when disabled */
             cursor: not-allowed;
         }
+        /* Results Styles */
         .results-container {
             text-align: center;
         }
@@ -115,6 +194,7 @@
              cursor: pointer;
              transition: background-color 0.3s;
              margin-top: 1rem;
+             width: 100%; /* Full width */
         }
         .restart-button:hover {
             background-color: #059669; /* Darker green */
@@ -126,24 +206,46 @@
 </head>
 <body class="bg-gray-100">
 
-    <div class="quiz-container">
-        <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Bakri Chhap: Integrated Rural Development Quiz</h1>
+    <div id="user-info-container" class="user-info-container">
+        <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Welcome to the Quiz!</h1>
+        <p class="text-center text-gray-600 mb-6">Please enter your details to start.</p>
+        <form id="user-info-form">
+            <div>
+                <label for="email" class="form-label">Email:</label>
+                <input type="email" id="email" name="email" class="form-input" required placeholder="you@example.com">
+            </div>
+            <div>
+                <label for="phone" class="form-label">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" class="form-input" required pattern="[6-9]\d{9}" placeholder="e.g., 9876543210" title="Please enter a valid 10-digit Indian mobile number">
+            </div>
+             <div id="form-error" class="text-red-600 text-sm mb-4 hidden"></div>
+            <button type="submit" class="start-button">Start Quiz</button>
+        </form>
+    </div>
+
+    <div id="quiz-container" class="quiz-container hidden">
+        <h1 class="text-2xl font-bold text-center mb-2 text-gray-800">Bakri Chhap Quiz</h1>
 
         <div id="quiz-content">
             <div class="progress-bar-container">
                 <div id="progress-bar" class="progress-bar"></div>
             </div>
-            <div id="question-number" class="text-sm text-gray-500 mb-2"></div>
+            <div class="question-header">
+                 <div id="question-number" class="text-sm text-gray-500"></div>
+                 <div id="timer" class="timer">00:30</div>
+            </div>
+
             <div id="question-text" class="question-text">Loading question...</div>
             <div id="options-container">
                 </div>
             <div id="feedback" class="feedback hidden"></div>
-            <button id="submit-button" class="submit-button" disabled>Submit Answer</button>
+            <button id="action-button" class="action-button" disabled>Submit Answer</button>
         </div>
 
         <div id="results-container" class="results-container hidden">
             <h2 class="results-title">Quiz Completed!</h2>
             <p id="results-score" class="results-score">Your score: 0 / 0</p>
+            <p id="user-details-summary" class="text-gray-500 text-sm mb-2"></p>
             <p id="results-message" class="text-gray-600 mb-4"></p>
             <button id="restart-button" class="restart-button">Restart Quiz</button>
         </div>
@@ -152,178 +254,143 @@
     <script>
         // --- Quiz Data ---
         const quizData = [
-            {
-                question: "What is the core philosophy of Bakri Chhap?",
-                options: [
-                    "Profit Maximization Only",
-                    "Pro Planet, Pro People, For Profit",
-                    "Technology First Development",
-                    "Urban Focused Growth"
-                ],
-                correctAnswer: "Pro Planet, Pro People, For Profit"
-            },
-            {
-                question: "Who is the founder of Bakri Chhap?",
-                options: [
-                    "Jayant Mahajan",
-                    "A team of social workers",
-                    "Roopesh Rai",
-                    "An anonymous collective"
-                ],
-                correctAnswer: "Roopesh Rai"
-            },
-            {
-                question: "What is the primary mission associated with Roopesh Rai and Bakri Chhap?",
-                options: [
-                    "Building Luxury Resorts",
-                    "Promoting Industrial Agriculture",
-                    "Change Before Climate Change",
-                    "Exporting Local Crafts"
-                ],
-                correctAnswer: "Change Before Climate Change"
-            },
-             {
-                question: "Which of these is NOT part of Bakri Chhap's 'holy trinity' guiding principles?",
-                options: [
-                    "Reduce",
-                    "Reuse",
-                    "Recycle",
-                    "Reinvest"
-                ],
-                correctAnswer: "Reinvest"
-            },
-            {
-                question: "A key goal of Bakri Chhap related to migration is:",
-                options: [
-                    "Encouraging urban migration",
-                    "Achieving reverse migration to villages",
-                    "Facilitating international migration",
-                    "Studying migration patterns"
-                ],
-                correctAnswer: "Achieving reverse migration to villages"
-            },
-            {
-                question: "Which initiative falls under Bakri Chhap's Agro / Rural Tourism vertical?",
-                options: [
-                    "Bakri Swayamwar",
-                    "Selling farm produce online",
-                    "The Goat Village homestays",
-                    "Zero carbon footprint cycling"
-                ],
-                correctAnswer: "The Goat Village homestays"
-            },
-             {
-                question: "What is the unique payment model used by Bakri Chhap homestays that attracted young travelers?",
-                options: [
-                    "Fixed High Prices",
-                    "Barter System Only",
-                    "Pay As You Like",
-                    "Subscription Model"
-                ],
-                correctAnswer: "Pay As You Like"
-            },
-            {
-                question: "How does Bakri Chhap ensure fair prices for its natural farm produce?",
-                options: [
-                    "Selling only through government channels",
-                    "Eliminating middlemen",
-                    "Setting prices below market rate",
-                    "Using dynamic pricing based on demand"
-                ],
-                correctAnswer: "Eliminating middlemen"
-            },
-             {
-                question: "What innovative approach does Bakri Chhap use for packaging its farm produce?",
-                options: [
-                    "Imported biodegradable containers",
-                    "Reusing existing used plastic bottles and containers",
-                    "Minimalist paper packaging",
-                    "Glass jars only"
-                ],
-                correctAnswer: "Reusing existing used plastic bottles and containers"
-            },
-            {
-                question: "What was the primary purpose of the 'Bakri Swayamwar' (Goat Marriages) initiative?",
-                options: [
-                    "A purely symbolic cultural event",
-                    "To sell goats to tourists",
-                    "Goat breeding and gene pool improvisation",
-                    "A fundraising event"
-                ],
-                correctAnswer: "Goat breeding and gene pool improvisation"
-            },
-            {
-                question: "What activity did Roopesh Rai undertake to spread awareness about climate change?",
-                options: [
-                    "Organizing large conferences",
-                    "A zero carbon footprint solo cycling expedition",
-                    "Writing a book",
-                    "Starting a YouTube channel"
-                ],
-                correctAnswer: "A zero carbon footprint solo cycling expedition"
-            },
-             {
-                question: "What are 'Prakriti Prahri' or 'Green Champs' appointed during the cycling expedition?",
-                options: [
-                    "Tour guides for The Goat Village",
-                    "Farmers selling Bakri Chhap produce",
-                    "Village representatives to continue the climate mission",
-                    "Hospitality trainees"
-                ],
-                correctAnswer: "Village representatives to continue the climate mission"
-            },
-             {
-                question: "Which traditional, climate-proof architecture has Bakri Chhap helped revive?",
-                options: [
-                    "Igloo construction",
-                    "Adobe brick making",
-                    "Koti Banal architecture",
-                    "Log cabin building"
-                ],
-                correctAnswer: "Koti Banal architecture"
-            },
-            {
-                question: "Which of the following is NOT mentioned as a future plan for Bakri Chhap?",
-                options: [
-                    "Building 20 new hideouts",
-                    "Expanding through a franchise model",
-                    "Focusing solely on the Himalayan region",
-                    "Becoming an integrated platform for SMMF"
-                ],
-                correctAnswer: "Focusing solely on the Himalayan region" // They aim to reach most villages in India.
-            },
-            {
-                question: "Approximately how many farmers does Bakri Chhap work with directly?",
-                options: [
-                    "Around 15",
-                    "Around 50",
-                    "Around 150",
-                    "Over 1000"
-                ],
-                correctAnswer: "Around 150"
-            }
+             { question: "What is the core philosophy of Bakri Chhap?", options: ["Profit Maximization Only", "Pro Planet, Pro People, For Profit", "Technology First Development", "Urban Focused Growth"], correctAnswer: "Pro Planet, Pro People, For Profit" },
+             { question: "Who is the founder of Bakri Chhap?", options: ["Jayant Mahajan", "A team of social workers", "Roopesh Rai", "An anonymous collective"], correctAnswer: "Roopesh Rai" },
+             { question: "What is the primary mission associated with Roopesh Rai and Bakri Chhap?", options: ["Building Luxury Resorts", "Promoting Industrial Agriculture", "Change Before Climate Change", "Exporting Local Crafts"], correctAnswer: "Change Before Climate Change" },
+             { question: "Which of these is NOT part of Bakri Chhap's 'holy trinity' guiding principles?", options: ["Reduce", "Reuse", "Recycle", "Reinvest"], correctAnswer: "Reinvest" },
+             { question: "A key goal of Bakri Chhap related to migration is:", options: ["Encouraging urban migration", "Achieving reverse migration to villages", "Facilitating international migration", "Studying migration patterns"], correctAnswer: "Achieving reverse migration to villages" },
+             { question: "Which initiative falls under Bakri Chhap's Agro / Rural Tourism vertical?", options: ["Bakri Swayamwar", "Selling farm produce online", "The Goat Village homestays", "Zero carbon footprint cycling"], correctAnswer: "The Goat Village homestays" },
+             { question: "What is the unique payment model used by Bakri Chhap homestays that attracted young travelers?", options: ["Fixed High Prices", "Barter System Only", "Pay As You Like", "Subscription Model"], correctAnswer: "Pay As You Like" },
+             { question: "How does Bakri Chhap ensure fair prices for its natural farm produce?", options: ["Selling only through government channels", "Eliminating middlemen", "Setting prices below market rate", "Using dynamic pricing based on demand"], correctAnswer: "Eliminating middlemen" },
+             { question: "What innovative approach does Bakri Chhap use for packaging its farm produce?", options: ["Imported biodegradable containers", "Reusing existing used plastic bottles and containers", "Minimalist paper packaging", "Glass jars only"], correctAnswer: "Reusing existing used plastic bottles and containers" },
+             { question: "What was the primary purpose of the 'Bakri Swayamwar' (Goat Marriages) initiative?", options: ["A purely symbolic cultural event", "To sell goats to tourists", "Goat breeding and gene pool improvisation", "A fundraising event"], correctAnswer: "Goat breeding and gene pool improvisation" },
+             { question: "What activity did Roopesh Rai undertake to spread awareness about climate change?", options: ["Organizing large conferences", "A zero carbon footprint solo cycling expedition", "Writing a book", "Starting a YouTube channel"], correctAnswer: "A zero carbon footprint solo cycling expedition" },
+             { question: "What are 'Prakriti Prahri' or 'Green Champs' appointed during the cycling expedition?", options: ["Tour guides for The Goat Village", "Farmers selling Bakri Chhap produce", "Village representatives to continue the climate mission", "Hospitality trainees"], correctAnswer: "Village representatives to continue the climate mission" },
+             { question: "Which traditional, climate-proof architecture has Bakri Chhap helped revive?", options: ["Igloo construction", "Adobe brick making", "Koti Banal architecture", "Log cabin building"], correctAnswer: "Koti Banal architecture" },
+             { question: "Which of the following is NOT mentioned as a future plan for Bakri Chhap?", options: ["Building 20 new hideouts", "Expanding through a franchise model", "Focusing solely on the Himalayan region", "Becoming an integrated platform for SMMF"], correctAnswer: "Focusing solely on the Himalayan region" },
+             { question: "Approximately how many farmers does Bakri Chhap work with directly?", options: ["Around 15", "Around 50", "Around 150", "Over 1000"], correctAnswer: "Around 150" }
         ];
 
         // --- DOM Elements ---
+        const userInfoContainerEl = document.getElementById('user-info-container');
+        const userInfoFormEl = document.getElementById('user-info-form');
+        const emailInputEl = document.getElementById('email');
+        const phoneInputEl = document.getElementById('phone');
+        const formErrorEl = document.getElementById('form-error');
+
+        const quizContainerEl = document.getElementById('quiz-container');
         const quizContentEl = document.getElementById('quiz-content');
         const questionTextEl = document.getElementById('question-text');
         const optionsContainerEl = document.getElementById('options-container');
         const feedbackEl = document.getElementById('feedback');
-        const submitButtonEl = document.getElementById('submit-button');
+        const actionButtonEl = document.getElementById('action-button'); // Renamed from submitButtonEl
         const resultsContainerEl = document.getElementById('results-container');
         const resultsScoreEl = document.getElementById('results-score');
+        const userDetailsSummaryEl = document.getElementById('user-details-summary');
         const resultsMessageEl = document.getElementById('results-message');
         const restartButtonEl = document.getElementById('restart-button');
         const progressBarEl = document.getElementById('progress-bar');
         const questionNumberEl = document.getElementById('question-number');
-
+        const timerEl = document.getElementById('timer');
 
         // --- Quiz State ---
         let currentQuestionIndex = 0;
         let score = 0;
         let selectedAnswer = null;
+        let userEmail = '';
+        let userPhone = '';
+        let timerInterval = null; // To hold the interval ID for the timer
+        const timePerQuestion = 30; // Seconds per question
+        let timeLeft = timePerQuestion;
+        let answerSubmitted = false; // Flag to check if answer was submitted for the current question
 
         // --- Functions ---
+
+        /**
+         * Handles the submission of the user info form.
+         */
+        function handleUserInfoSubmit(event) {
+            event.preventDefault(); // Prevent default form submission
+            formErrorEl.classList.add('hidden'); // Hide previous errors
+
+            // Basic validation (HTML5 validation handles most)
+            if (!userInfoFormEl.checkValidity()) {
+                // Show a generic error or rely on browser's default validation UI
+                 formErrorEl.textContent = 'Please fill in all fields correctly.';
+                 formErrorEl.classList.remove('hidden');
+                return;
+            }
+
+            userEmail = emailInputEl.value;
+            userPhone = phoneInputEl.value;
+
+            // Hide form, show quiz
+            userInfoContainerEl.classList.add('hidden');
+            quizContainerEl.classList.remove('hidden');
+            startQuiz();
+        }
+
+        /**
+         * Starts the quiz after user info is submitted.
+         */
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        /**
+         * Starts the countdown timer for the current question.
+         */
+        function startTimer() {
+            timeLeft = timePerQuestion;
+            timerEl.textContent = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
+            timerEl.classList.remove('text-red-600', 'bg-red-100'); // Reset color potentially set by timeout
+            timerEl.classList.add('text-red-600', 'bg-fee2e2');
+
+
+            clearInterval(timerInterval); // Clear any existing timer
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
+
+                if (timeLeft <= 5) {
+                     timerEl.classList.add('animate-pulse'); // Add pulse effect for last 5 seconds
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerEl.textContent = "Time's up!";
+                     timerEl.classList.remove('animate-pulse');
+                    handleTimeUp();
+                }
+            }, 1000);
+        }
+
+        /**
+         * Handles the situation when the timer runs out.
+         */
+        function handleTimeUp() {
+             if (answerSubmitted) return; // Don't do anything if answer was already submitted
+
+             feedbackEl.textContent = "Time's up! Moving to the next question.";
+             feedbackEl.className = 'feedback incorrect-message'; // Use incorrect styling
+             feedbackEl.classList.remove('hidden');
+
+             // Disable options
+             const optionButtons = optionsContainerEl.querySelectorAll('.option-button');
+             optionButtons.forEach(button => button.disabled = true);
+
+             // Show the correct answer
+             highlightCorrectAnswer();
+
+             // Change button to "Next Question" or "Show Results"
+             actionButtonEl.textContent = (currentQuestionIndex < quizData.length - 1) ? 'Next Question' : 'Show Results';
+             actionButtonEl.disabled = false; // Enable the button to proceed
+             actionButtonEl.onclick = moveToNextQuestion; // Set action to move next
+        }
+
 
         /**
          * Loads and displays the current question and options.
@@ -331,11 +398,15 @@
         function loadQuestion() {
             // Reset state for the new question
             selectedAnswer = null;
+            answerSubmitted = false; // Reset submission flag
             feedbackEl.classList.add('hidden');
             feedbackEl.textContent = '';
-            submitButtonEl.disabled = true;
-            submitButtonEl.textContent = 'Submit Answer'; // Reset button text
+            actionButtonEl.disabled = true;
+            actionButtonEl.textContent = 'Submit Answer';
+            actionButtonEl.onclick = checkAnswer; // Reset button action to check answer
             optionsContainerEl.innerHTML = ''; // Clear previous options
+            timerEl.classList.remove('animate-pulse'); // Remove pulse effect if carried over
+
 
             if (currentQuestionIndex < quizData.length) {
                 const currentQuestion = quizData[currentQuestionIndex];
@@ -345,18 +416,21 @@
                 questionNumberEl.textContent = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
 
                 // Update progress bar
-                const progressPercentage = ((currentQuestionIndex + 1) / quizData.length) * 100;
+                // Calculate progress based on the *next* question index to show progress *after* answering
+                const progressPercentage = (currentQuestionIndex / quizData.length) * 100;
                 progressBarEl.style.width = `${progressPercentage}%`;
-
 
                 // Create and append option buttons
                 currentQuestion.options.forEach(option => {
                     const button = document.createElement('button');
-                    button.textContent = option;
+                    button.innerHTML = `<span>${option}</span>`; // Wrap text in span for flex alignment
                     button.classList.add('option-button');
                     button.addEventListener('click', () => selectAnswer(button, option));
                     optionsContainerEl.appendChild(button);
                 });
+
+                // Start the timer for the new question
+                startTimer();
             } else {
                 // Quiz finished, show results
                 showResults();
@@ -365,10 +439,10 @@
 
         /**
          * Handles the selection of an answer option.
-         * @param {HTMLButtonElement} selectedButton - The button element that was clicked.
-         * @param {string} answer - The text content of the selected answer.
          */
         function selectAnswer(selectedButton, answer) {
+             if (answerSubmitted) return; // Don't allow changing answer after submission
+
             // Remove 'selected' class from previously selected button (if any)
             const currentlySelected = optionsContainerEl.querySelector('.selected');
             if (currentlySelected) {
@@ -378,61 +452,96 @@
             // Add 'selected' class to the clicked button
             selectedButton.classList.add('selected');
             selectedAnswer = answer;
-            submitButtonEl.disabled = false; // Enable submit button
+            actionButtonEl.disabled = false; // Enable submit button
         }
+
+        /**
+        * Highlights the correct answer visually.
+        */
+        function highlightCorrectAnswer() {
+             const currentQuestion = quizData[currentQuestionIndex];
+             const optionButtons = optionsContainerEl.querySelectorAll('.option-button');
+             optionButtons.forEach(button => {
+                 // Use innerHTML comparison as we added spans/icons
+                 const buttonText = button.querySelector('span').textContent;
+                 if (buttonText === currentQuestion.correctAnswer) {
+                    // Avoid overriding the 'incorrect' style if the user selected the wrong one
+                    if (!button.classList.contains('incorrect')) {
+                        button.classList.add('correct');
+                        button.innerHTML = `<span>${buttonText}</span> <i class="fas fa-check"></i>`; // Add check icon
+                    }
+                 }
+             });
+        }
+
 
         /**
          * Checks the selected answer, provides feedback, and updates the score.
          */
         function checkAnswer() {
-            if (selectedAnswer === null) return; // Should not happen if button is enabled, but good practice
+            if (selectedAnswer === null || answerSubmitted) return;
+
+            answerSubmitted = true; // Mark as submitted
+            clearInterval(timerInterval); // Stop the timer
 
             const currentQuestion = quizData[currentQuestionIndex];
             const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
 
             // Disable option buttons after submitting
             const optionButtons = optionsContainerEl.querySelectorAll('.option-button');
-            optionButtons.forEach(button => button.disabled = true);
+            optionButtons.forEach(button => {
+                button.disabled = true;
+                // Find the selected button to apply styles
+                if (button.classList.contains('selected')) {
+                    if (isCorrect) {
+                        button.classList.add('correct');
+                        button.innerHTML = `<span>${selectedAnswer}</span> <i class="fas fa-check"></i>`; // Add check icon
+                        feedbackEl.textContent = "Correct!";
+                        feedbackEl.className = 'feedback correct-message';
+                        score++;
+                    } else {
+                        button.classList.add('incorrect');
+                        button.innerHTML = `<span>${selectedAnswer}</span> <i class="fas fa-times"></i>`; // Add cross icon
+                        feedbackEl.textContent = `Incorrect. The right answer was: ${currentQuestion.correctAnswer}`;
+                        feedbackEl.className = 'feedback incorrect-message';
+                        // Also highlight the correct answer
+                        highlightCorrectAnswer();
+                    }
+                }
+            });
 
-            // Provide visual feedback (optional - uncomment if immediate feedback is desired)
-            /*
             feedbackEl.classList.remove('hidden');
-            if (isCorrect) {
-                feedbackEl.textContent = "Correct!";
-                feedbackEl.classList.remove('incorrect');
-                feedbackEl.classList.add('correct');
-                score++;
-            } else {
-                feedbackEl.textContent = `Incorrect. The correct answer is: ${currentQuestion.correctAnswer}`;
-                feedbackEl.classList.remove('correct');
-                feedbackEl.classList.add('incorrect');
-            }
-            */
 
-             // Update score if correct (feedback shown at the end)
-             if (isCorrect) {
-                score++;
-             }
+
+            // Update progress bar fully for the answered question
+             const progressPercentage = ((currentQuestionIndex + 1) / quizData.length) * 100;
+             progressBarEl.style.width = `${progressPercentage}%`;
 
 
             // Change button text and functionality to "Next Question" or "Show Results"
-            submitButtonEl.textContent = (currentQuestionIndex < quizData.length - 1) ? 'Next Question' : 'Show Results';
-            submitButtonEl.onclick = () => { // Reassign onclick for the next step
-                 currentQuestionIndex++;
-                 optionButtons.forEach(button => button.disabled = false); // Re-enable buttons for next question
-                 submitButtonEl.onclick = checkAnswer; // Reset onclick back to checkAnswer
-                 loadQuestion();
-             };
+            actionButtonEl.textContent = (currentQuestionIndex < quizData.length - 1) ? 'Next Question' : 'Show Results';
+            actionButtonEl.onclick = moveToNextQuestion; // Set action to move to the next question
         }
+
+        /**
+        * Moves to the next question or shows results.
+        */
+        function moveToNextQuestion() {
+             currentQuestionIndex++;
+             loadQuestion();
+        }
+
 
         /**
          * Displays the final quiz results.
          */
         function showResults() {
+            clearInterval(timerInterval); // Ensure timer is stopped
             quizContentEl.classList.add('hidden'); // Hide quiz questions area
             resultsContainerEl.classList.remove('hidden'); // Show results area
 
             resultsScoreEl.textContent = `Your score: ${score} / ${quizData.length}`;
+            userDetailsSummaryEl.textContent = `Quiz taken by: ${userEmail} (${userPhone})`; // Display collected info
 
             // Provide a simple message based on score
             let message = '';
@@ -450,23 +559,36 @@
         }
 
         /**
-         * Resets the quiz state and starts over.
+         * Resets the quiz state and shows the user info form again.
          */
         function restartQuiz() {
+            // Reset state variables
             currentQuestionIndex = 0;
             score = 0;
             selectedAnswer = null;
+            userEmail = '';
+            userPhone = '';
+            clearInterval(timerInterval);
+            timeLeft = timePerQuestion;
+            answerSubmitted = false;
+
+
+            // Reset UI elements
             resultsContainerEl.classList.add('hidden'); // Hide results
-            quizContentEl.classList.remove('hidden'); // Show quiz content
-            loadQuestion(); // Load the first question
+            quizContainerEl.classList.add('hidden'); // Hide quiz
+            userInfoContainerEl.classList.remove('hidden'); // Show user info form
+            userInfoFormEl.reset(); // Clear form fields
+            formErrorEl.classList.add('hidden'); // Hide form errors
+            progressBarEl.style.width = '0%'; // Reset progress bar
         }
 
         // --- Event Listeners ---
-        submitButtonEl.addEventListener('click', checkAnswer);
+        userInfoFormEl.addEventListener('submit', handleUserInfoSubmit);
+        actionButtonEl.addEventListener('click', checkAnswer); // Initial action is checkAnswer
         restartButtonEl.addEventListener('click', restartQuiz);
 
-        // --- Initial Load ---
-        loadQuestion();
+        // --- Initial Setup ---
+        // Quiz starts only after form submission, so no initial loadQuestion() here.
 
     </script>
 

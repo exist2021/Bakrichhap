@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bakri Chhap: Integrated Rural Development Quiz</title>
+    <title>Bakri Chhap: Fun Rural Development Quiz</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <style>
         /* Custom styles for better look and feel */
         body {
             font-family: 'Inter', sans-serif; /* Using Inter font */
+            background-color: #f3f4f6; /* Lighter gray background */
         }
         .quiz-container, .user-info-container {
             max-width: 700px;
@@ -17,7 +21,7 @@
             padding: 2rem;
             background-color: #ffffff;
             border-radius: 1rem; /* Rounded corners */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Softer shadow */
         }
         .hidden {
             display: none;
@@ -40,7 +44,7 @@
         .form-input:focus {
             outline: none;
             border-color: #3b82f6; /* Blue border on focus */
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Slightly larger focus ring */
         }
         .start-button {
             padding: 0.75rem 1.5rem;
@@ -50,11 +54,14 @@
             border-radius: 0.5rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.1s;
             width: 100%; /* Full width */
         }
         .start-button:hover {
             background-color: #059669; /* Darker green */
+        }
+         .start-button:active {
+            transform: scale(0.98); /* Click effect */
         }
         /* Quiz Styles */
         .question-header {
@@ -88,13 +95,16 @@
             border-radius: 0.5rem; /* Rounded corners */
             background-color: #f9fafb; /* Light gray background */
             color: #374151; /* Medium gray text */
-            transition: background-color 0.3s, border-color 0.3s;
+            transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
             cursor: pointer;
         }
         .option-button:hover:not(:disabled) {
             background-color: #e5e7eb; /* Slightly darker gray on hover */
             border-color: #9ca3af;
         }
+         .option-button:active:not(:disabled) {
+             transform: scale(0.99); /* Slight shrink on click */
+         }
         .option-button.selected:not(.correct):not(.incorrect) {
              background-color: #dbeafe; /* Light blue when selected */
              border-color: #60a5fa; /* Blue border when selected */
@@ -135,6 +145,12 @@
             background-color: #fee2e2; /* Light red */
             color: #991b1b; /* Dark red */
         }
+        /* --- NEW: Confetti Message Style --- */
+        .confetti-message {
+            background-color: #c4b5fd; /* Light purple */
+            color: #5b21b6; /* Dark purple */
+            margin-top: 0.5rem;
+        }
         .progress-bar-container {
              width: 100%;
              background-color: #e5e7eb; /* Light gray background */
@@ -158,13 +174,16 @@
             border-radius: 0.5rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.1s;
             margin-top: 1rem;
             width: 100%; /* Full width */
         }
         .action-button:hover:not(:disabled) {
             background-color: #1d4ed8; /* Darker blue */
         }
+         .action-button:active:not(:disabled) {
+            transform: scale(0.98);
+         }
         .action-button:disabled {
             background-color: #9ca3af; /* Gray when disabled */
             cursor: not-allowed;
@@ -182,8 +201,24 @@
         .results-score {
             font-size: 1.25rem;
             color: #374151;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.5rem; /* Reduced margin */
         }
+         /* --- NEW: Badge Styles --- */
+        .badge-container {
+             margin-bottom: 1.5rem;
+             font-size: 1.1rem;
+             font-weight: 600;
+        }
+        .badge-icon {
+             font-size: 2.5rem; /* Larger badge icon */
+             margin-right: 0.5rem;
+             vertical-align: middle;
+        }
+        .badge-gold { color: #d97706; } /* Amber 600 */
+        .badge-silver { color: #9ca3af; } /* Gray 400 */
+        .badge-bronze { color: #a16207; } /* Yellow 700 */
+        .badge-participant { color: #6b7280; } /* Gray 500 */
+
         .restart-button {
              padding: 0.75rem 1.5rem;
              background-color: #10b981; /* Green */
@@ -192,13 +227,29 @@
              border-radius: 0.5rem;
              font-weight: 600;
              cursor: pointer;
-             transition: background-color 0.3s;
+             transition: background-color 0.3s, transform 0.1s;
              margin-top: 1rem;
              width: 100%; /* Full width */
         }
         .restart-button:hover {
             background-color: #059669; /* Darker green */
         }
+         .restart-button:active {
+            transform: scale(0.98);
+        }
+        /* --- NEW: Styling for Email Status --- */
+         .email-status {
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            color: #6b7280; /* Gray 500 */
+        }
+        .email-status.success {
+            color: #059669; /* Darker Green */
+        }
+        .email-status.error {
+            color: #dc2626; /* Red 600 */
+        }
+
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -225,33 +276,43 @@
 
     <div id="quiz-container" class="quiz-container hidden">
         <h1 class="text-2xl font-bold text-center mb-2 text-gray-800">Bakri Chhap Quiz</h1>
+        <p class="text-center text-sm text-gray-500 mb-4">Test your knowledge!</p>
 
         <div id="quiz-content">
             <div class="progress-bar-container">
                 <div id="progress-bar" class="progress-bar"></div>
             </div>
             <div class="question-header">
-                 <div id="question-number" class="text-sm text-gray-500"></div>
+                 <div id="question-number" class="text-sm text-gray-500 font-medium"></div>
                  <div id="timer" class="timer">00:30</div>
             </div>
 
             <div id="question-text" class="question-text">Loading question...</div>
             <div id="options-container">
-                </div>
+                 </div>
             <div id="feedback" class="feedback hidden"></div>
+             <div id="confetti-feedback" class="feedback confetti-message hidden"></div>
             <button id="action-button" class="action-button" disabled>Submit Answer</button>
         </div>
 
         <div id="results-container" class="results-container hidden">
             <h2 class="results-title">Quiz Completed!</h2>
             <p id="results-score" class="results-score">Your score: 0 / 0</p>
+            <div id="badge-container" class="badge-container">
+                 </div>
             <p id="user-details-summary" class="text-gray-500 text-sm mb-2"></p>
             <p id="results-message" class="text-gray-600 mb-4"></p>
+             <p id="email-status" class="email-status">Sending results...</p>
             <button id="restart-button" class="restart-button">Restart Quiz</button>
         </div>
     </div>
 
     <script>
+        // --- EmailJS Configuration (REPLACE WITH YOUR DETAILS!) ---
+        const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';
+        const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
+        const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+
         // --- Quiz Data ---
         const quizData = [
              { question: "What is the core philosophy of Bakri Chhap?", options: ["Profit Maximization Only", "Pro Planet, Pro People, For Profit", "Technology First Development", "Urban Focused Growth"], correctAnswer: "Pro Planet, Pro People, For Profit" },
@@ -283,11 +344,14 @@
         const questionTextEl = document.getElementById('question-text');
         const optionsContainerEl = document.getElementById('options-container');
         const feedbackEl = document.getElementById('feedback');
-        const actionButtonEl = document.getElementById('action-button'); // Renamed from submitButtonEl
+        const confettiFeedbackEl = document.getElementById('confetti-feedback'); // New Element
+        const actionButtonEl = document.getElementById('action-button');
         const resultsContainerEl = document.getElementById('results-container');
         const resultsScoreEl = document.getElementById('results-score');
+        const badgeContainerEl = document.getElementById('badge-container'); // New Element
         const userDetailsSummaryEl = document.getElementById('user-details-summary');
         const resultsMessageEl = document.getElementById('results-message');
+        const emailStatusEl = document.getElementById('email-status'); // New Element
         const restartButtonEl = document.getElementById('restart-button');
         const progressBarEl = document.getElementById('progress-bar');
         const questionNumberEl = document.getElementById('question-number');
@@ -296,26 +360,37 @@
         // --- Quiz State ---
         let currentQuestionIndex = 0;
         let score = 0;
+        let consecutiveCorrectAnswers = 0; // New State: Track consecutive answers
         let selectedAnswer = null;
         let userEmail = '';
         let userPhone = '';
-        let timerInterval = null; // To hold the interval ID for the timer
+        let timerInterval = null;
         const timePerQuestion = 30; // Seconds per question
         let timeLeft = timePerQuestion;
-        let answerSubmitted = false; // Flag to check if answer was submitted for the current question
+        let answerSubmitted = false;
 
         // --- Functions ---
+
+        /**
+         * Initializes EmailJS SDK. Run once when the script loads.
+         */
+        function initializeEmailJS() {
+             if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
+                 emailjs.init(EMAILJS_PUBLIC_KEY);
+                 console.log("EmailJS Initialized.");
+             } else {
+                 console.warn("EmailJS Public Key not set. Email sending will be disabled.");
+             }
+        }
 
         /**
          * Handles the submission of the user info form.
          */
         function handleUserInfoSubmit(event) {
-            event.preventDefault(); // Prevent default form submission
-            formErrorEl.classList.add('hidden'); // Hide previous errors
+            event.preventDefault();
+            formErrorEl.classList.add('hidden');
 
-            // Basic validation (HTML5 validation handles most)
             if (!userInfoFormEl.checkValidity()) {
-                // Show a generic error or rely on browser's default validation UI
                  formErrorEl.textContent = 'Please fill in all fields correctly.';
                  formErrorEl.classList.remove('hidden');
                 return;
@@ -324,7 +399,6 @@
             userEmail = emailInputEl.value;
             userPhone = phoneInputEl.value;
 
-            // Hide form, show quiz
             userInfoContainerEl.classList.add('hidden');
             quizContainerEl.classList.remove('hidden');
             startQuiz();
@@ -336,6 +410,14 @@
         function startQuiz() {
             currentQuestionIndex = 0;
             score = 0;
+            consecutiveCorrectAnswers = 0; // Reset streak
+            // Clear previous results UI if any
+             resultsContainerEl.classList.add('hidden');
+             quizContentEl.classList.remove('hidden');
+             badgeContainerEl.innerHTML = ''; // Clear old badge
+             emailStatusEl.textContent = 'Sending results...'; // Reset email status
+             emailStatusEl.className = 'email-status';
+
             loadQuestion();
         }
 
@@ -345,18 +427,17 @@
         function startTimer() {
             timeLeft = timePerQuestion;
             timerEl.textContent = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
-            timerEl.classList.remove('text-red-600', 'bg-red-100'); // Reset color potentially set by timeout
+            timerEl.classList.remove('text-red-600', 'bg-red-100', 'animate-pulse');
             timerEl.classList.add('text-red-600', 'bg-fee2e2');
 
-
-            clearInterval(timerInterval); // Clear any existing timer
+            clearInterval(timerInterval);
 
             timerInterval = setInterval(() => {
                 timeLeft--;
                 timerEl.textContent = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
 
-                if (timeLeft <= 5) {
-                     timerEl.classList.add('animate-pulse'); // Add pulse effect for last 5 seconds
+                if (timeLeft <= 5 && timeLeft > 0) {
+                     timerEl.classList.add('animate-pulse');
                 }
 
                 if (timeLeft <= 0) {
@@ -372,67 +453,62 @@
          * Handles the situation when the timer runs out.
          */
         function handleTimeUp() {
-             if (answerSubmitted) return; // Don't do anything if answer was already submitted
+             if (answerSubmitted) return;
 
-             feedbackEl.textContent = "Time's up! Moving to the next question.";
+             answerSubmitted = true; // Mark as submitted even if time ran out before selection
+             clearInterval(timerInterval); // Stop timer just in case
+
+             consecutiveCorrectAnswers = 0; // Reset streak on time out
+             confettiFeedbackEl.classList.add('hidden'); // Hide confetti message
+
+             feedbackEl.textContent = "Time's up! The correct answer is highlighted.";
              feedbackEl.className = 'feedback incorrect-message'; // Use incorrect styling
              feedbackEl.classList.remove('hidden');
 
-             // Disable options
              const optionButtons = optionsContainerEl.querySelectorAll('.option-button');
              optionButtons.forEach(button => button.disabled = true);
 
-             // Show the correct answer
-             highlightCorrectAnswer();
+             highlightCorrectAnswer(); // Show the correct answer
 
-             // Change button to "Next Question" or "Show Results"
              actionButtonEl.textContent = (currentQuestionIndex < quizData.length - 1) ? 'Next Question' : 'Show Results';
-             actionButtonEl.disabled = false; // Enable the button to proceed
-             actionButtonEl.onclick = moveToNextQuestion; // Set action to move next
+             actionButtonEl.disabled = false;
+             actionButtonEl.onclick = moveToNextQuestion;
         }
-
 
         /**
          * Loads and displays the current question and options.
          */
         function loadQuestion() {
-            // Reset state for the new question
             selectedAnswer = null;
-            answerSubmitted = false; // Reset submission flag
+            answerSubmitted = false;
             feedbackEl.classList.add('hidden');
+            confettiFeedbackEl.classList.add('hidden'); // Hide confetti message for new question
             feedbackEl.textContent = '';
             actionButtonEl.disabled = true;
             actionButtonEl.textContent = 'Submit Answer';
-            actionButtonEl.onclick = checkAnswer; // Reset button action to check answer
-            optionsContainerEl.innerHTML = ''; // Clear previous options
-            timerEl.classList.remove('animate-pulse'); // Remove pulse effect if carried over
-
+            actionButtonEl.onclick = checkAnswer;
+            optionsContainerEl.innerHTML = '';
+            timerEl.classList.remove('animate-pulse');
 
             if (currentQuestionIndex < quizData.length) {
                 const currentQuestion = quizData[currentQuestionIndex];
 
-                // Update question text and number
                 questionTextEl.textContent = currentQuestion.question;
                 questionNumberEl.textContent = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
 
-                // Update progress bar
-                // Calculate progress based on the *next* question index to show progress *after* answering
                 const progressPercentage = (currentQuestionIndex / quizData.length) * 100;
                 progressBarEl.style.width = `${progressPercentage}%`;
 
-                // Create and append option buttons
                 currentQuestion.options.forEach(option => {
                     const button = document.createElement('button');
-                    button.innerHTML = `<span>${option}</span>`; // Wrap text in span for flex alignment
+                    button.innerHTML = `<span>${option}</span>`;
                     button.classList.add('option-button');
                     button.addEventListener('click', () => selectAnswer(button, option));
                     optionsContainerEl.appendChild(button);
                 });
 
-                // Start the timer for the new question
                 startTimer();
             } else {
-                // Quiz finished, show results
                 showResults();
             }
         }
@@ -441,154 +517,246 @@
          * Handles the selection of an answer option.
          */
         function selectAnswer(selectedButton, answer) {
-             if (answerSubmitted) return; // Don't allow changing answer after submission
+             if (answerSubmitted) return;
 
-            // Remove 'selected' class from previously selected button (if any)
             const currentlySelected = optionsContainerEl.querySelector('.selected');
             if (currentlySelected) {
                 currentlySelected.classList.remove('selected');
             }
 
-            // Add 'selected' class to the clicked button
             selectedButton.classList.add('selected');
             selectedAnswer = answer;
-            actionButtonEl.disabled = false; // Enable submit button
+            actionButtonEl.disabled = false;
         }
 
         /**
-        * Highlights the correct answer visually.
+        * Triggers the confetti effect.
         */
-        function highlightCorrectAnswer() {
-             const currentQuestion = quizData[currentQuestionIndex];
-             const optionButtons = optionsContainerEl.querySelectorAll('.option-button');
-             optionButtons.forEach(button => {
-                 // Use innerHTML comparison as we added spans/icons
-                 const buttonText = button.querySelector('span').textContent;
-                 if (buttonText === currentQuestion.correctAnswer) {
-                    // Avoid overriding the 'incorrect' style if the user selected the wrong one
-                    if (!button.classList.contains('incorrect')) {
-                        button.classList.add('correct');
-                        button.innerHTML = `<span>${buttonText}</span> <i class="fas fa-check"></i>`; // Add check icon
-                    }
-                 }
+        function triggerConfetti() {
+             // Basic confetti burst
+             confetti({
+                 particleCount: 120,
+                 spread: 70,
+                 origin: { y: 0.6 } // Start confetti from slightly above center
              });
-        }
-
+         }
 
         /**
-         * Checks the selected answer, provides feedback, and updates the score.
+         * Highlights the correct answer visually.
+         */
+        function highlightCorrectAnswer() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            const optionButtons = optionsContainerEl.querySelectorAll('.option-button');
+            optionButtons.forEach(button => {
+                const buttonText = button.querySelector('span').textContent;
+                if (buttonText === currentQuestion.correctAnswer) {
+                     // Only add correct class if it wasn't the user's incorrect choice
+                     if (!button.classList.contains('incorrect')) {
+                         button.classList.remove('selected'); // Remove selection style if it was selected
+                         button.classList.add('correct');
+                         button.innerHTML = `<span>${buttonText}</span> <i class="fas fa-check text-green-700"></i>`;
+                     } else {
+                         // If the user picked wrong, still indicate the right one, but maybe less prominently?
+                         // For now, just ensure the check icon is added if they got it wrong
+                         button.innerHTML += ` <i class="fas fa-check text-green-700 ml-2 opacity-70"></i>`;
+                     }
+                }
+            });
+        }
+
+        /**
+         * Checks the selected answer, provides feedback, updates score, and handles confetti.
          */
         function checkAnswer() {
-            if (selectedAnswer === null || answerSubmitted) return;
+             if (selectedAnswer === null || answerSubmitted) return;
 
-            answerSubmitted = true; // Mark as submitted
-            clearInterval(timerInterval); // Stop the timer
+            answerSubmitted = true;
+            clearInterval(timerInterval);
 
             const currentQuestion = quizData[currentQuestionIndex];
             const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
 
-            // Disable option buttons after submitting
+            confettiFeedbackEl.classList.add('hidden'); // Hide potential previous confetti message
+
+            // Disable option buttons and apply styles
             const optionButtons = optionsContainerEl.querySelectorAll('.option-button');
             optionButtons.forEach(button => {
                 button.disabled = true;
-                // Find the selected button to apply styles
                 if (button.classList.contains('selected')) {
                     if (isCorrect) {
                         button.classList.add('correct');
-                        button.innerHTML = `<span>${selectedAnswer}</span> <i class="fas fa-check"></i>`; // Add check icon
+                        button.innerHTML = `<span>${selectedAnswer}</span> <i class="fas fa-check text-green-700"></i>`;
                         feedbackEl.textContent = "Correct!";
                         feedbackEl.className = 'feedback correct-message';
                         score++;
+                        consecutiveCorrectAnswers++; // Increment streak
+
+                        // --- NEW: Check for Confetti Trigger ---
+                        if (consecutiveCorrectAnswers > 0 && consecutiveCorrectAnswers % 3 === 0) {
+                             triggerConfetti();
+                             confettiFeedbackEl.textContent = `🎉 ${consecutiveCorrectAnswers} in a row! Great job! 🎉`;
+                             confettiFeedbackEl.classList.remove('hidden');
+                        }
+                        // ---------------------------------------
+
                     } else {
                         button.classList.add('incorrect');
-                        button.innerHTML = `<span>${selectedAnswer}</span> <i class="fas fa-times"></i>`; // Add cross icon
-                        feedbackEl.textContent = `Incorrect. The right answer was: ${currentQuestion.correctAnswer}`;
+                        button.innerHTML = `<span>${selectedAnswer}</span> <i class="fas fa-times text-red-700"></i>`;
+                        feedbackEl.textContent = `Incorrect.`; // Keep it brief
                         feedbackEl.className = 'feedback incorrect-message';
-                        // Also highlight the correct answer
-                        highlightCorrectAnswer();
+                        highlightCorrectAnswer(); // Show the correct one
+                        consecutiveCorrectAnswers = 0; // Reset streak on incorrect answer
                     }
                 }
             });
 
             feedbackEl.classList.remove('hidden');
 
+            const progressPercentage = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            progressBarEl.style.width = `${progressPercentage}%`;
 
-            // Update progress bar fully for the answered question
-             const progressPercentage = ((currentQuestionIndex + 1) / quizData.length) * 100;
-             progressBarEl.style.width = `${progressPercentage}%`;
-
-
-            // Change button text and functionality to "Next Question" or "Show Results"
             actionButtonEl.textContent = (currentQuestionIndex < quizData.length - 1) ? 'Next Question' : 'Show Results';
-            actionButtonEl.onclick = moveToNextQuestion; // Set action to move to the next question
+            actionButtonEl.onclick = moveToNextQuestion;
         }
 
         /**
-        * Moves to the next question or shows results.
-        */
+         * Moves to the next question or shows results.
+         */
         function moveToNextQuestion() {
-             currentQuestionIndex++;
-             loadQuestion();
+            currentQuestionIndex++;
+            loadQuestion();
         }
+
+        /**
+         * Gets the appropriate badge based on the score percentage.
+         */
+        function getBadge(percentage) {
+             let badge = { icon: 'fa-certificate', text: 'Participant', colorClass: 'badge-participant' }; // Default
+
+             if (percentage === 100) {
+                 badge = { icon: 'fa-medal', text: 'Gold Medalist!', colorClass: 'badge-gold' };
+             } else if (percentage >= 80) { // Adjusted threshold
+                 badge = { icon: 'fa-award', text: 'Silver Achiever!', colorClass: 'badge-silver' };
+             } else if (percentage >= 60) { // Adjusted threshold
+                 badge = { icon: 'fa-star', text: 'Bronze Star!', colorClass: 'badge-bronze' };
+             }
+             return badge;
+         }
 
 
         /**
-         * Displays the final quiz results.
+         * Displays the final quiz results, badge, and triggers email sending.
          */
         function showResults() {
-            clearInterval(timerInterval); // Ensure timer is stopped
-            quizContentEl.classList.add('hidden'); // Hide quiz questions area
-            resultsContainerEl.classList.remove('hidden'); // Show results area
+            clearInterval(timerInterval);
+            quizContentEl.classList.add('hidden');
+            resultsContainerEl.classList.remove('hidden');
 
             resultsScoreEl.textContent = `Your score: ${score} / ${quizData.length}`;
-            userDetailsSummaryEl.textContent = `Quiz taken by: ${userEmail} (${userPhone})`; // Display collected info
+            userDetailsSummaryEl.textContent = `Quiz taken by: ${userEmail} (${userPhone})`;
 
-            // Provide a simple message based on score
-            let message = '';
             const percentage = (score / quizData.length) * 100;
+             const awardedBadge = getBadge(percentage);
+
+            // --- NEW: Display Badge ---
+            badgeContainerEl.innerHTML = `
+                 <i class="fas ${awardedBadge.icon} ${awardedBadge.colorClass} badge-icon"></i>
+                 <span class="${awardedBadge.colorClass}">${awardedBadge.text}</span>
+             `;
+             // --------------------------
+
+            let message = '';
             if (percentage === 100) {
-                message = "Excellent! You have a perfect understanding of Bakri Chhap!";
-            } else if (percentage >= 75) {
-                message = "Great job! You know a lot about Bakri Chhap's mission and work.";
-            } else if (percentage >= 50) {
-                message = "Good effort! You've grasped the basics of Bakri Chhap.";
+                message = "Flawless Victory! You're a true Bakri Chhap expert!";
+                 triggerConfetti(); // Extra confetti for perfect score!
+            } else if (percentage >= 80) {
+                message = "Excellent job! You really know your stuff about Bakri Chhap!";
+            } else if (percentage >= 60) {
+                message = "Good work! You have a solid understanding.";
+            } else if (percentage >= 40) {
+                message = "Nice try! Keep learning about sustainable development.";
             } else {
-                message = "Keep learning! There's more to discover about Bakri Chhap's impact.";
+                message = "Every journey starts with a single step! Learn more about Bakri Chhap's impact.";
             }
             resultsMessageEl.textContent = message;
+
+            // --- NEW: Send Results Email ---
+            if (EMAILJS_SERVICE_ID && EMAILJS_SERVICE_ID !== 'service_h6i9o2a' &&
+                EMAILJS_TEMPLATE_ID && EMAILJS_TEMPLATE_ID !== 'template_fcvvfio' &&
+                EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== '-TK5RyNUa7KbNMEM5') {
+                sendResultsEmail(userEmail, userPhone, score, quizData.length, awardedBadge.text);
+            } else {
+                emailStatusEl.textContent = 'Email sending not configured.';
+                emailStatusEl.classList.add('error');
+                console.warn("EmailJS credentials not set. Cannot send email.");
+            }
+            // ------------------------------
         }
+
+        /**
+         * Sends the quiz results via EmailJS.
+         */
+         function sendResultsEmail(email, phone, finalScore, total, badgeText) {
+            emailStatusEl.textContent = 'Sending results...'; // Show sending status
+            emailStatusEl.className = 'email-status'; // Reset class
+
+             const templateParams = {
+                 user_email: email,
+                 user_phone: phone, // Make sure your template uses {{user_phone}}
+                 user_score: finalScore,
+                 total_questions: total,
+                 user_badge: badgeText // Send badge text
+             };
+
+             emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+                 .then(function(response) {
+                    console.log('EmailJS SUCCESS!', response.status, response.text);
+                    emailStatusEl.textContent = 'Results sent successfully!';
+                    emailStatusEl.classList.add('success');
+                 }, function(error) {
+                    console.error('EmailJS FAILED...', error);
+                    emailStatusEl.textContent = 'Failed to send results. Please try again later.';
+                    emailStatusEl.classList.add('error');
+                 });
+         }
+
 
         /**
          * Resets the quiz state and shows the user info form again.
          */
         function restartQuiz() {
-            // Reset state variables
             currentQuestionIndex = 0;
             score = 0;
             selectedAnswer = null;
             userEmail = '';
             userPhone = '';
+            consecutiveCorrectAnswers = 0; // Reset streak
             clearInterval(timerInterval);
             timeLeft = timePerQuestion;
             answerSubmitted = false;
 
+            resultsContainerEl.classList.add('hidden');
+            quizContainerEl.classList.add('hidden');
+            userInfoContainerEl.classList.remove('hidden');
+            userInfoFormEl.reset();
+            formErrorEl.classList.add('hidden');
+            progressBarEl.style.width = '0%';
+             badgeContainerEl.innerHTML = ''; // Clear badge
+             emailStatusEl.textContent = 'Sending results...'; // Reset email status text
+             emailStatusEl.className = 'email-status'; // Reset email status class
+             quizContentEl.classList.remove('hidden'); // Ensure quiz content area is visible on restart
 
-            // Reset UI elements
-            resultsContainerEl.classList.add('hidden'); // Hide results
-            quizContainerEl.classList.add('hidden'); // Hide quiz
-            userInfoContainerEl.classList.remove('hidden'); // Show user info form
-            userInfoFormEl.reset(); // Clear form fields
-            formErrorEl.classList.add('hidden'); // Hide form errors
-            progressBarEl.style.width = '0%'; // Reset progress bar
+             // Re-enable the quiz content area in case it was hidden by showResults
+             document.getElementById('quiz-content').classList.remove('hidden');
         }
 
         // --- Event Listeners ---
         userInfoFormEl.addEventListener('submit', handleUserInfoSubmit);
-        actionButtonEl.addEventListener('click', checkAnswer); // Initial action is checkAnswer
+        // actionButtonEl listener is set dynamically in loadQuestion/checkAnswer/handleTimeUp
         restartButtonEl.addEventListener('click', restartQuiz);
 
         // --- Initial Setup ---
-        // Quiz starts only after form submission, so no initial loadQuestion() here.
+        initializeEmailJS(); // Initialize EmailJS when the page loads.
 
     </script>
 

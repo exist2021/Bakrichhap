@@ -309,9 +309,9 @@
 
     <script>
         // --- EmailJS Configuration (REPLACE WITH YOUR DETAILS!) ---
-        const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';
-        const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
-        const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+        const EMAILJS_SERVICE_ID = 'service_h6i9o2a';
+        const EMAILJS_TEMPLATE_ID = 'template_fcvvfio';
+        const EMAILJS_PUBLIC_KEY = '-TK5RyNUa7KbNMEM5';
 
         // --- Quiz Data ---
         const quizData = [
@@ -681,9 +681,9 @@
             resultsMessageEl.textContent = message;
 
             // --- NEW: Send Results Email ---
-            if (EMAILJS_SERVICE_ID && EMAILJS_SERVICE_ID !== 'service_h6i9o2a' &&
-                EMAILJS_TEMPLATE_ID && EMAILJS_TEMPLATE_ID !== 'template_fcvvfio' &&
-                EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== '-TK5RyNUa7KbNMEM5') {
+            if (EMAILJS_SERVICE_ID && EMAILJS_SERVICE_ID !== 'YOUR_SERVICE_ID' &&
+                EMAILJS_TEMPLATE_ID && EMAILJS_TEMPLATE_ID !== 'YOUR_TEMPLATE_ID' &&
+                EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
                 sendResultsEmail(userEmail, userPhone, score, quizData.length, awardedBadge.text);
             } else {
                 emailStatusEl.textContent = 'Email sending not configured.';
